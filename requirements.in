@@ -1,0 +1,8 @@
+bcrypt
+black
+cryptography
+mypy
+pytest
+pytest-cov
+ruff
+textual
