@@ -36,9 +36,14 @@ jobs:
         if: runner.os != 'Windows'
         run: |
           echo "=== Wheel Contents ==="
-          python -m zipfile -l dist/*.whl
+          for wheel in dist/*.whl; do
+            echo "Contents of $wheel:"
+            python -m zipfile -l "$wheel"
+            echo ""
+          done
       
       - name: Install and test packages
+        shell: bash
         run: |
           pip install dist/*.whl
           python -c "import task_app; import budget_app; import tui_common; print('All packages imported successfully')"

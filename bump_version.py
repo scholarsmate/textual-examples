@@ -7,10 +7,16 @@ The build_packages.py script reads this file to set package versions.
 """
 
 import argparse
+import io
 import re
 import subprocess
 import sys
 from pathlib import Path
+
+# Ensure UTF-8 encoding for stdout/stderr on Windows
+if sys.platform == "win32":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8")
 
 
 def get_current_version(version_file: Path) -> str:

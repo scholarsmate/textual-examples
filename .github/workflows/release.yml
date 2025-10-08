@@ -40,7 +40,7 @@ jobs:
           if-no-files-found: error
       
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             dist/*.whl
@@ -48,8 +48,8 @@ jobs:
           generate_release_notes: true
           draft: false
           prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          fail_on_unmatched_files: true
+          make_latest: true
 
   # Optional: Publish to PyPI
   # Uncomment this job when you're ready to publish to PyPI
