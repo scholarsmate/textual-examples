@@ -35,7 +35,7 @@ import sys
 from pathlib import Path
 
 
-def clean_build_dirs():
+def clean_build_dirs() -> None:
     """Remove existing build and dist directories."""
     print("🧹 Cleaning build and dist directories...")
     for dir_name in ["build", "dist"]:
@@ -45,13 +45,13 @@ def clean_build_dirs():
             print(f"   Removed {dir_name}/")
 
 
-def copy_tree(src: Path, dst: Path, description: str):
+def copy_tree(src: Path, dst: Path, description: str) -> None:
     """Copy a directory tree with progress message."""
     print(f"   Copying {description}...")
     shutil.copytree(src, dst, dirs_exist_ok=True)
 
 
-def create_task_app_package():
+def create_task_app_package() -> Path:
     """Create task-app package in build directory."""
     print("\n📦 Building task-app package...")
 
@@ -73,7 +73,7 @@ def create_task_app_package():
             print(f"   Copying {file}")
 
     # Create pyproject.toml for task-app
-    pyproject_content = '''[build-system]
+    pyproject_content = """[build-system]
 requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
@@ -126,7 +126,7 @@ where = ["."]
 
 [tool.setuptools.package-data]
 tui_common = ["VERSION"]
-'''
+"""
 
     (build_dir / "pyproject.toml").write_text(pyproject_content)
     print("   Created pyproject.toml")
@@ -134,7 +134,7 @@ tui_common = ["VERSION"]
     return build_dir
 
 
-def create_budget_app_package():
+def create_budget_app_package() -> Path:
     """Create budget-app package in build directory."""
     print("\n📦 Building budget-app package...")
 
@@ -156,7 +156,7 @@ def create_budget_app_package():
             print(f"   Copying {file}")
 
     # Create pyproject.toml for budget-app
-    pyproject_content = '''[build-system]
+    pyproject_content = """[build-system]
 requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
@@ -209,7 +209,7 @@ where = ["."]
 
 [tool.setuptools.package-data]
 tui_common = ["VERSION"]
-'''
+"""
 
     (build_dir / "pyproject.toml").write_text(pyproject_content)
     print("   Created pyproject.toml")
@@ -217,7 +217,7 @@ tui_common = ["VERSION"]
     return build_dir
 
 
-def build_package(build_dir: Path, package_name: str):
+def build_package(build_dir: Path, package_name: str) -> bool:
     """Build a package using python -m build."""
     print(f"\n🔨 Building {package_name} package...")
 
@@ -225,7 +225,7 @@ def build_package(build_dir: Path, package_name: str):
         [sys.executable, "-m", "build", "--outdir", "../../dist"],
         cwd=build_dir,
         capture_output=True,
-        text=True
+        text=True,
     )
 
     if result.returncode != 0:
@@ -237,7 +237,7 @@ def build_package(build_dir: Path, package_name: str):
     return True
 
 
-def main():
+def main() -> int:
     """Main build process."""
     print("=" * 60)
     print("Building Task and Budget App Packages")

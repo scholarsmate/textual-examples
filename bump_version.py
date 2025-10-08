@@ -45,7 +45,7 @@ def run_git_command(args: list[str]) -> bool:
         return False
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description="Bump version for Textual TUI Apps")
     parser.add_argument("version", help="New version number (e.g., 1.2.0)")
     parser.add_argument("--no-commit", action="store_true", help="Don't create git commit")

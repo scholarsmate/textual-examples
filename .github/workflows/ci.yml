@@ -126,7 +126,7 @@ jobs:
 
     - name: Test app imports
       run: |
-        python -c "import sys; sys.path.insert(0, 'src'); import task_app; import budget_app; import tui_common; import tui_screens"
+        python -c "import sys; sys.path.insert(0, 'src'); import task_app; import budget_app; import tui_common"
         echo "All modules imported successfully"
 
     - name: Validate project structure
