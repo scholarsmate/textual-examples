@@ -61,18 +61,66 @@ This project follows [Semantic Versioning](https://semver.org/) (SemVer):
 To release a new version:
 
 1. Update the `VERSION` file with the new version number
-2. Commit the change: `git commit -m "Bump version to X.Y.Z"`
+2. Commit the changes: `git commit -m "Bump version to X.Y.Z"`
 3. Tag the release: `git tag vX.Y.Z`
-4. Push with tags: `git push --tags`
+4. Push with tags: `git push origin main && git push origin vX.Y.Z`
 
-The version is automatically read from the `VERSION` file at runtime using the `get_version()` function in `tui_common.py`.
+**CI/CD Integration**: When you push a version tag (e.g., `v1.0.0`), GitHub Actions automatically:
 
-## Quickstart
+- Builds both packages using `build_packages.py`
+- Creates a GitHub Release with wheel and source distribution files
+- Uploads artifacts for both Task App and Budget App
+
+See [CI-CD-SETUP.md](CI-CD-SETUP.md) for detailed information on automated builds and releases.
+
+The version is automatically read from the `VERSION` file at runtime using the `get_version()` function from `tui_common`. The VERSION file is packaged with each app for runtime access.
+
+## Installation
+
+The apps are packaged separately, so you can install just the one you need!
+
+### Option 1: Install from Wheel Files (Recommended)
+
+Download the latest wheel files from [GitHub Releases](https://github.com/scholarsmate/textual-examples/releases):
+
+```bash
+# Task app
+pip install textual_task_app-1.0.0-py3-none-any.whl
+
+# Budget app
+pip install textual_budget_app-1.0.0-py3-none-any.whl
+
+# Run the apps
+task-app
+budget-app
+```
+
+### Option 2: Build and Install from Source
 
 ```bash
 git clone https://github.com/scholarsmate/textual-examples.git
-cd textual-tui-starter
+cd textual-examples
+
+# Build both packages
+pip install build
+python build_packages.py
+
+# Install from built wheels
+pip install dist/textual_task_app-1.0.0-py3-none-any.whl
+pip install dist/textual_budget_app-1.0.0-py3-none-any.whl
+
+# Run the apps
+task-app
+budget-app
+```
+
+### Option 3: Development / Run from Source
+
+```bash
+git clone https://github.com/scholarsmate/textual-examples.git
+cd textual-examples
 python -m venv .venv
+
 # Linux/macOS:
 source .venv/bin/activate
 # Windows PowerShell:
@@ -82,6 +130,29 @@ pip install -r requirements.txt
 python task_app.py     # Task app
 python budget_app.py   # Budget app
 ```
+
+## Building Distribution Packages
+
+To create distributable wheel and source packages for both apps:
+
+```bash
+pip install build
+python build_packages.py
+```
+
+This creates in the `dist/` directory:
+- `textual_task_app-1.0.0-py3-none-any.whl`
+- `textual_task_app-1.0.0.tar.gz`
+- `textual_budget_app-1.0.0-py3-none-any.whl`
+- `textual_budget_app-1.0.0.tar.gz`
+
+The `build_packages.py` script:
+1. Copies source files from `src/` to package-specific build directories
+2. Includes the shared `tui_common` library with each app
+3. Generates appropriate `pyproject.toml` for each package
+4. Builds self-contained wheels with all dependencies declared
+
+See [PACKAGING.md](PACKAGING.md) for detailed information about the packaging architecture.
 
 ## Usage
 
@@ -121,10 +192,18 @@ python budget_app.py   # Budget app
 
 ## Data & Auth
 
+### Data Storage Location
+
+Application data is stored in OS-standard locations using `platformdirs`:
+
+- **Windows**: `%LOCALAPPDATA%\textual-apps\{app_name}` (e.g., `C:\Users\YourName\AppData\Local\textual-apps\tasks`)
+- **macOS**: `~/Library/Application Support/textual-apps/{app_name}`
+- **Linux**: `~/.local/share/textual-apps/{app_name}`
+
 ### Directory Structure
 
 ```raw
-data/
+{OS-specific-data-dir}/textual-apps/
 ├── budget/
 │   ├── users.json                    # User credentials (bcrypt hashes + encryption preference)
 │   ├── {username}_expenses.csv       # User's expenses (plain text)
@@ -177,7 +256,7 @@ Both apps support **optional data encryption** configured at registration:
 
 To customize expense categories, edit your config file:
 
-- **Location:** `data/budget/{username}_config.json` (or `{username}_config.enc.json` if encrypted)
+- **Location:** `{OS-data-dir}/textual-apps/budget/{username}_config.json` (or `{username}_config.enc.json` if encrypted)
 - **Note:** If encryption is enabled, the config file is encrypted with your password
 - The app automatically suggests categories from your existing expenses
 - Common categories are built into the app for autocomplete
@@ -185,8 +264,8 @@ To customize expense categories, edit your config file:
 
   ```json
   {
-    "monthly_budget": 2000.0,
-    "next_serial": 14
+    "monthly_budget": 2112.0,
+    "next_serial": 42
   }
   ```
 
@@ -219,7 +298,7 @@ To customize expense categories, edit your config file:
 
 ### Monthly Budget Features
 
-- Set a monthly budget limit (e.g., $2000)
+- Set a monthly budget limit (e.g., 2000.00)
 - View current month's spending summary at the top of the screen
 - See top 3 spending categories
 - Get alerts when approaching or exceeding budget:
@@ -243,6 +322,7 @@ If you have `make` installed:
 ```bash
 make venv       # create virtual environment
 make install    # install dependencies into venv
+make test       # run the test suite
 make task       # run task app
 make budget     # run budget app
 ```
@@ -262,7 +342,6 @@ pre-commit run --all-files   # lint/format once
 Type hints are included throughout. Check with:
 
 ```bash
-pip install mypy pyright
 mypy .
 pyright
 ```
@@ -295,39 +374,67 @@ pytest --cov-report=html
 make test
 ```
 
-Test coverage:
-
-- **141 total tests** across 3 test files
-  - `test_tui_common.py` (68 tests) - 100% coverage of authentication, encryption & version management
-  - `test_task_app.py` (28 tests) - Task data model, business logic, and confirmation dialogs
-  - `test_budget_app.py` (45 tests) - Budget data model and calculations
-- Tests cover authentication, encryption, file I/O, data validation, and business logic
-- Fixtures for temporary directories and test data
-- Both positive and negative test cases
-
 ### Project Structure
 
-- `budget_app.py` - Budget tracking application
-- `task_app.py` - Task management application  
-- `tui_common.py` - Shared authentication and encryption utilities
-- `tui_screens.py` - Shared login/registration screens
-- `VERSION` - Semantic version number (e.g., 1.0.0)
-- `tests/` - Comprehensive test suite (141 tests)
-  - `test_tui_common.py` - Tests for tui_common module (100% coverage)
-  - `test_task_app.py` - Tests for task app data models
-  - `test_budget_app.py` - Tests for budget app data models
-- `requirements.txt` - Python dependencies
-- `pyproject.toml` - Project configuration (Black, Ruff, Pytest)
-- `Makefile` - Convenience commands
+```
+src/
+├── tui_common/          # Shared library (no duplication in git)
+│   ├── __init__.py      # Public API exports
+│   ├── auth.py          # User authentication (bcrypt)
+│   ├── crypto.py        # Encryption utilities (Fernet)
+│   ├── data.py          # CSV/JSON file operations
+│   ├── paths.py         # OS-standard path management
+│   ├── screens.py       # Login/registration UI
+│   └── version.py       # Version reading
+├── task_app/
+│   ├── __init__.py
+│   └── main.py          # Task management app
+└── budget_app/
+    ├── __init__.py
+    └── main.py          # Budget tracking app
 
-## Dependencies
+Root files:
+├── build_packages.py    # Build script for self-contained packages
+├── task_app.py          # Compatibility wrapper
+├── budget_app.py        # Compatibility wrapper
+├── tui_common.py        # Compatibility wrapper
+├── tui_screens.py       # Compatibility wrapper
+├── VERSION              # Semantic version (packaged with apps)
+├── requirements.txt     # Python dependencies
+├── pyproject.toml       # Project configuration
+├── Makefile            # Convenience commands
+└── tests/              # Comprehensive test suite
+    ├── conftest.py      # Test fixtures (isolated data dirs)
+    ├── test_tui_common.py
+    ├── test_task_app.py
+    └── test_budget_app.py
+```
 
-- **textual** - Terminal UI framework
-- **bcrypt** - Password hashing
-- **cryptography** - Optional data encryption (Fernet)
-- **pre-commit** (dev) - Git hooks for code quality
-- **ruff** (dev) - Fast Python linter
-- **black** (dev) - Code formatter
+**Packaging Architecture:**
+- Source code in `src/` has NO duplication
+- `build_packages.py` copies files at build time
+- Each package includes its own copy of `tui_common`
+- Build artifacts (`build/`, `dist/`) are gitignored
+
+See [PACKAGING.md](PACKAGING.md) for detailed architecture documentation.
+
+## Application Dependencies
+
+- **textual** >= 6.2.1 - Terminal UI framework
+- **bcrypt** >= 5.0.0 - Password hashing
+- **cryptography** >= 43.0.3 - Data encryption (Fernet)
+- **rich** >= 14.1.0 - Rich text formatting
+- **platformdirs** >= 3.0.0 - OS-standard directory locations
+
+## Development Dependencies
+
+- **pytest** - Testing framework
+- **pytest-cov** - Code coverage reporting
+- **ruff** - Fast Python linter
+- **black** - Code formatter
+- **mypy** - Static type checker
+- **pyright** - Type checker
+- **build** - Package building tool
 
 ## License
 

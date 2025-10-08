@@ -21,3 +21,7 @@ Thumbs.db
 # app data
 data/**/*
 !data/.gitkeep
+# build
+build/
+dist/
+*.egg-info/

@@ -2,6 +2,8 @@ bcrypt
 black
 cryptography
 mypy
+platformdirs
+pyright
 pytest
 pytest-cov
 ruff

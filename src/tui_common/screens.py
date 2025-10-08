@@ -1,4 +1,3 @@
-# tui_screens.py
 """Login and registration screens with optional data encryption prompt."""
 
 from collections.abc import Callable
@@ -13,6 +12,8 @@ from textual.widgets import Button, Footer, Header, Input, Label, Static
 
 
 class AuthProvider(Protocol):
+    """Protocol for authentication providers."""
+
     app_name: str
 
     def create_user(self, username: str, password: str, encrypt_data: bool = False) -> None: ...
@@ -91,6 +92,8 @@ class EncryptionPromptScreen(ModalScreen[bool]):
 
 
 class LoginScreen(Screen[None]):
+    """Login and registration screen for TUI apps."""
+
     BINDINGS = [
         Binding("enter", "login", "Login", show=True),
         Binding("ctrl+l", "login", "Login", show=True),

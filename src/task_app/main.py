@@ -1,4 +1,4 @@
-# task_app.py
+# task_app/main.py
 """Task management TUI application using Textual."""
 
 from collections.abc import Callable
@@ -14,6 +14,7 @@ from textual.widgets import Button, DataTable, Footer, Header, Input, Label
 
 from tui_common import (
     BcryptAuth,
+    LoginScreen,
     get_version,
     load_config,
     load_csv_data,
@@ -22,8 +23,8 @@ from tui_common import (
     sort_data,
     user_config_path,
     user_data_path,
+    user_wants_encryption,
 )
-from tui_screens import LoginScreen
 
 APP_NAME = "tasks"
 FIELDS = ["serial", "title", "notes", "done"]
@@ -446,7 +447,6 @@ class TaskApp(App[None]):
         auth = BcryptAuth(APP_NAME)
         # LoginScreen provides both username and password to callback
         # Check encryption status and pass password only if encryption is enabled
-        from tui_common import user_wants_encryption
 
         def create_main_screen(user: str, password: str) -> MainScreen:
             # Only pass password if user has encryption enabled
@@ -455,5 +455,10 @@ class TaskApp(App[None]):
         self.push_screen(LoginScreen("Task App — Login", auth, create_main_screen))
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """Entry point for the task-app command."""
     TaskApp().run()
+
+
+if __name__ == "__main__":
+    main()

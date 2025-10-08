@@ -1,3 +1,60 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "textual-tui-apps"
+version = "1.0.0"
+description = "Professional Textual TUI applications: Task Manager and Budget Tracker"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [
+    {name = "Scholar's Mate", email = "scholarsmate@users.noreply.github.com"}
+]
+keywords = ["tui", "textual", "terminal", "task-manager", "budget-tracker", "cli"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: End Users/Desktop",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Office/Business",
+    "Topic :: Utilities",
+]
+
+dependencies = [
+    "textual>=6.2.1",
+    "bcrypt>=5.0.0",
+    "cryptography>=43.0.3",
+    "rich>=14.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black>=25.9.0",
+    "ruff>=0.13.3",
+    "mypy>=1.18.2",
+    "pytest>=8.4.2",
+    "pytest-cov>=7.0.0",
+]
+
+[project.scripts]
+budget-app = "budget_app.main:main"
+task-app = "task_app.main:main"
+
+[project.urls]
+Homepage = "https://github.com/scholarsmate/textual-examples"
+Repository = "https://github.com/scholarsmate/textual-examples"
+Issues = "https://github.com/scholarsmate/textual-examples/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
 [tool.black]
 line-length = 100
 target-version = ["py310"]
@@ -6,11 +63,11 @@ target-version = ["py310"]
 line-length = 100
 target-version = "py310"
 lint.select = ["E", "F", "W", "B", "I", "UP", "N", "SIM"]
-extend-exclude = ["data", ".venv"]
+extend-exclude = ["data", ".venv", "build", "dist", "htmlcov", "**/__pycache__", "**/*.egg-info"]
 
 [tool.ruff.lint.isort]
 combine-as-imports = true
-known-first-party = ["tui_common"]
+known-first-party = ["tui_common", "task_app", "budget_app"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -20,17 +77,20 @@ python_functions = ["test_*"]
 addopts = [
     "-v",
     "--strict-markers",
-    "--cov=tui_common",
+    "--cov=src",
     "--cov-report=term-missing",
     "--cov-report=html",
 ]
 
 [tool.coverage.run]
-source = ["."]
+source = ["src"]
 omit = [
     "tests/*",
     ".venv/*",
     "data/*",
+    "build/*",
+    "dist/*",
+    "htmlcov/*",
 ]
 
 [tool.coverage.report]

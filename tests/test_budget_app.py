@@ -5,7 +5,7 @@ from datetime import date, datetime
 
 import pytest
 
-from budget_app import APP_NAME, COMMON_CATEGORIES, FIELDS
+from budget_app.main import APP_NAME, COMMON_CATEGORIES, FIELDS
 
 
 class TestBudgetConstants:

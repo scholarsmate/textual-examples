@@ -1,4 +1,4 @@
-# budget_app.py
+# budget_app/main.py
 """Budget tracking TUI application using Textual."""
 
 from collections.abc import Callable
@@ -15,6 +15,7 @@ from textual.widgets import Button, DataTable, Footer, Header, Input, Label
 
 from tui_common import (
     BcryptAuth,
+    LoginScreen,
     get_version,
     load_config,
     load_csv_data,
@@ -23,8 +24,8 @@ from tui_common import (
     sort_data,
     user_config_path,
     user_data_path,
+    user_wants_encryption,
 )
-from tui_screens import LoginScreen
 
 APP_NAME = "budget"
 FIELDS = ["serial", "date", "category", "amount", "description"]
@@ -292,7 +293,7 @@ class MainScreen(Screen[None]):
     #title { margin-bottom: 1; }
     #panel { height: 1fr; }
 
-    /* Toolbar pinned above the table: roomy, won’t squash */
+    /* Toolbar pinned above the table: roomy, won't squash */
     #toolbar {
         width: 100%;
         height: auto;          /* let buttons set height */
@@ -609,7 +610,6 @@ class BudgetApp(App[None]):
         auth = BcryptAuth(APP_NAME)
         # LoginScreen provides both username and password to callback
         # Check encryption status and pass password only if encryption is enabled
-        from tui_common import user_wants_encryption
 
         def create_main_screen(user: str, pwd: str) -> MainScreen:
             encrypted = user_wants_encryption(APP_NAME, user)
@@ -620,5 +620,10 @@ class BudgetApp(App[None]):
         self.push_screen(LoginScreen("Budget App — Login", auth, create_main_screen))
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """Entry point for the budget-app command."""
     BudgetApp().run()
+
+
+if __name__ == "__main__":
+    main()

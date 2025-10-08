@@ -7,7 +7,12 @@
   ],
   "exclude": [
     "data",
-    ".venv"
+    ".venv",
+    "build",
+    "dist",
+    "htmlcov",
+    "**/__pycache__",
+    "**/*.egg-info"
   ],
   "reportMissingTypeArgument": "warning",
   "reportIncompatibleMethodOverride": "warning"

@@ -2,7 +2,7 @@
 """Tests for task_app module."""
 
 
-from task_app import APP_NAME, FIELDS, Task
+from task_app.main import APP_NAME, FIELDS, Task
 
 
 class TestTask:
@@ -312,7 +312,7 @@ class TestConfirmDeleteScreen:
 
     def test_confirm_delete_screen_initialization(self) -> None:
         """Test ConfirmDeleteScreen can be initialized with task data."""
-        from task_app import ConfirmDeleteScreen
+        from task_app.main import ConfirmDeleteScreen
 
         task_dict = {
             "serial": "42",
@@ -333,7 +333,7 @@ class TestConfirmDeleteScreen:
 
     def test_confirm_delete_callback_execution(self) -> None:
         """Test that the confirmation callback is properly stored."""
-        from task_app import ConfirmDeleteScreen
+        from task_app.main import ConfirmDeleteScreen
 
         task_dict = {
             "serial": "1",
