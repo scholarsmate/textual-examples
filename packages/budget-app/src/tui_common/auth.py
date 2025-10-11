@@ -37,10 +37,8 @@ def load_users(path: Path) -> dict[str, dict[str, Any]]:
     if path.exists():
         with path.open(encoding="utf-8") as f:
             users: dict[str, Any] = json.load(f)
-            # Migrate old format to new format
             for username, data in users.items():
                 if isinstance(data, str):
-                    # Old format: username -> hashed_password
                     users[username] = {"password": data, "encrypt_data": False}
             result: dict[str, dict[str, Any]] = users
             return result
@@ -92,19 +90,15 @@ class BcryptAuth:
     """Authentication provider using bcrypt for password hashing."""
 
     def __init__(self, app_name: str):
-        """Initialize auth provider with app name for data isolation."""
         self.app_name = app_name
 
     def create_user(self, username: str, password: str, encrypt_data: bool = False) -> None:
-        """Create a new user with hashed password and optional data encryption."""
         create_user(self.app_name, username, password, encrypt_data)
 
     def verify_user(self, username: str, password: str) -> bool:
-        """Verify username and password against stored bcrypt hash."""
         return verify_user(self.app_name, username, password)
 
     def user_exists(self, username: str) -> bool:
-        """Check if a user already exists."""
         path = users_db_path(self.app_name)
         users = load_users(path)
         return username in users

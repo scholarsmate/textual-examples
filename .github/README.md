@@ -41,17 +41,20 @@ This directory contains CI/CD workflows for the Textual TUI Apps project.
 
 4. GitHub Actions will automatically build and release
 
-### Using the Version Bump Script
+### Version Bumping with Hatch
 
 ```bash
-# Update version and create tag (but don't push)
-python bump_version.py 1.1.0
+# Choose one bump type
+hatch version patch   # X.Y.(Z+1)
+hatch version minor   # X.(Y+1).0
+hatch version major   # (X+1).0.0
 
-# Update version, create tag, and push
-python bump_version.py 1.1.0 --push
-
-# Just update files, no git operations
-python bump_version.py 1.1.0 --no-commit
+# Tag and push
+git add VERSION
+git commit -m "Bump version to $(cat VERSION)"
+git tag v$(cat VERSION)
+git push origin main
+git push origin v$(cat VERSION)
 ```
 
 ## Artifacts

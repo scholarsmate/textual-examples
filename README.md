@@ -1,11 +1,54 @@
 # textual-tui-starter
 
-Two professional Textual (Textualize) TUI apps demonstrating shared authentication and data management:
+Two Textual (Textualize) TUI apps demonstrating shared authentication and data management:
 
 - **`task_app.py`** — Simple task manager with CRUD operations
 - **`budget_app.py`** — Full-featured expense tracker with budget monitoring
 
 Both apps share a common bcrypt-based authentication layer with support for optional data encryption.
+
+## Quickstart
+
+```bash
+git clone https://github.com/scholarsmate/textual-examples.git
+cd textual-examples
+python -m venv .venv
+
+# Windows PowerShell:
+.\.venv\Scripts\Activate.ps1
+# Linux/macOS:
+source .venv/bin/activate
+
+# Install dependencies
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+
+# Launch in the terminal (from repo root)
+python ./packages/task-app/src/task_app/main.py
+python ./packages/budget-app/src/budget_app/main.py
+
+# Optional: run either app in the browser (Textual web mode)
+python -m textual run --web --port 8000 ./packages/task-app/src/task_app/main.py
+python -m textual run --web --port 8000 ./packages/budget-app/src/budget_app/main.py
+```
+
+### Hatch one-liners
+
+Hatch is integrated for development and QA. Install Hatch and use these scripts:
+
+```powershell
+# Windows PowerShell
+hatch run task         # runs task-app
+hatch run budget       # runs budget-app
+hatch run task-web     # task app in browser
+hatch run budget-web   # budget app in browser
+
+# QA helpers
+hatch run test         # pytest
+hatch run cov          # pytest with coverage
+hatch run lint         # ruff
+hatch run format       # ruff formatter
+```
 
 ## Features
 
@@ -60,6 +103,24 @@ This project follows [Semantic Versioning](https://semver.org/) (SemVer):
 
 To release a new version:
 
+Using Hatch version management (recommended):
+
+```powershell
+# Bump the version stored in VERSION (choose one):
+hatch version patch   # X.Y.(Z+1)
+hatch version minor   # X.(Y+1).0
+hatch version major   # (X+1).0.0
+
+# Then commit and tag in git
+git add VERSION
+git commit -m "Bump version to $(Get-Content VERSION)"
+git tag v$(Get-Content VERSION)
+git push origin main
+git push origin v$(Get-Content VERSION)
+```
+
+Manual approach (still works):
+
 1. Update the `VERSION` file with the new version number
 2. Commit the changes: `git commit -m "Bump version to X.Y.Z"`
 3. Tag the release: `git tag vX.Y.Z`
@@ -67,7 +128,7 @@ To release a new version:
 
 **CI/CD Integration**: When you push a version tag (e.g., `v1.0.2`), GitHub Actions automatically:
 
-- Builds both packages using `build_packages.py`
+- Builds both packages with Hatch from `packages/task-app` and `packages/budget-app`
 - Creates a GitHub Release with wheel and source distribution files
 - Uploads artifacts for both Task App and Budget App
 
@@ -85,31 +146,43 @@ Download the latest wheel files from [GitHub Releases](https://github.com/schola
 
 ```bash
 # Task app
-pip install textual_task_app-1.0.2-py3-none-any.whl
+pip install textual-task-app-1.0.2-py3-none-any.whl
 
 # Budget app
-pip install textual_budget_app-1.0.2-py3-none-any.whl
+pip install textual-budget-app-1.0.2-py3-none-any.whl
 
 # Run the apps
 task-app
 budget-app
 ```
 
-### Option 2: Build and Install from Source
+### Option 2: Build and Install from Source (per-package with Hatch)
 
 ```bash
 git clone https://github.com/scholarsmate/textual-examples.git
 cd textual-examples
 
-# Build both packages
-pip install build
-python build_packages.py
+pip install -r requirements.txt
 
-# Install from built wheels
-pip install dist/textual_task_app-1.0.2-py3-none-any.whl
-pip install dist/textual_budget_app-1.0.2-py3-none-any.whl
+# Build both packages (one command)
+hatch run build-all
+
+# Install from built wheels (pick the version built on your machine)
+pip install packages/task-app/dist/textual-task-app-*.whl
+pip install packages/budget-app/dist/textual-budget-app-*.whl
 
 # Run the apps
+task-app
+budget-app
+
+### Option 2b: Editable install for development (easiest CLI)
+
+```powershell
+# Install each app in editable mode
+pip install -e packages/task-app
+pip install -e packages/budget-app
+
+# Then use the console scripts (works from anywhere)
 task-app
 budget-app
 ```
@@ -127,32 +200,27 @@ source .venv/bin/activate
 # .venv\Scripts\Activate.ps1
 
 pip install -r requirements.txt
-python task_app.py     # Task app
-python budget_app.py   # Budget app
+
+# Run in the terminal (from repo root)
+python ./packages/task-app/src/task_app/main.py
+python ./packages/budget-app/src/budget_app/main.py
+
+# Textual web mode (in-browser)
+# Launch Task app in browser
+python -m textual run --web --port 8000 ./packages/task-app/src/task_app/main.py
+
+# Launch Budget app in browser
+python -m textual run --web --port 8000 ./packages/budget-app/src/budget_app/main.py
 ```
 
 ## Building Distribution Packages
 
-To create distributable wheel and source packages for both apps:
+Use the per-package builds from Option 2 above. Artifacts will be created in each package's `dist/` directory:
 
-```bash
-pip install build
-python build_packages.py
-```
-
-This creates in the `dist/` directory:
-
-- `textual_task_app-1.0.2-py3-none-any.whl`
-- `textual_task_app-1.0.2.tar.gz`
-- `textual_budget_app-1.0.2-py3-none-any.whl`
-- `textual_budget_app-1.0.2.tar.gz`
-
-The `build_packages.py` script:
-
-1. Copies source files from `src/` to package-specific build directories
-2. Includes the shared `tui_common` library with each app
-3. Generates appropriate `pyproject.toml` for each package
-4. Builds self-contained wheels with all dependencies declared
+- `packages/task-app/dist/textual-task-app-<version>-py3-none-any.whl`
+- `packages/task-app/dist/textual-task-app-<version>.tar.gz`
+- `packages/budget-app/dist/textual-budget-app-<version>-py3-none-any.whl`
+- `packages/budget-app/dist/textual-budget-app-<version>.tar.gz`
 
 See [PACKAGING.md](PACKAGING.md) for detailed information about the packaging architecture.
 
@@ -160,7 +228,7 @@ See [PACKAGING.md](PACKAGING.md) for detailed information about the packaging ar
 
 ### First Run
 
-1. Launch either app: `python task_app.py` or `python budget_app.py`
+1. Launch either app: `task-app` or `budget-app` (after installing), or use `hatch run task` / `hatch run budget`
 2. Click "Register" to create a new account
 3. Enter username and password
 4. Choose whether to encrypt your data (recommended for sensitive information)
@@ -317,21 +385,26 @@ To customize expense categories, edit your config file:
 - Auto-save on every change
 - Budget warnings displayed when saving expenses
 
-## Make targets (optional)
+## Hatch commands
 
-If you have `make` installed:
+These Hatch scripts are available:
 
-```bash
-make venv       # create virtual environment
-make install    # install dependencies into venv
-make test       # run the test suite
-make task       # run task app
-make budget     # run budget app
+```powershell
+hatch run task         # run task app in terminal
+hatch run budget       # run budget app in terminal
+hatch run task-web     # run task app in browser (Textual web mode)
+hatch run budget-web   # run budget app in browser (Textual web mode)
+
+# QA
+hatch run test         # run pytest
+hatch run cov          # run pytest with coverage
+hatch run lint         # ruff
+hatch run format       # ruff formatter
 ```
 
 ## Development
 
-### Code Quality: Ruff + Black via pre-commit
+### Code Quality: Ruff (formatter + linter) via pre-commit
 
 ```bash
 pip install -r requirements.txt
@@ -372,51 +445,65 @@ pytest tests/test_tui_common.py::TestEncryption::test_encrypt_decrypt_roundtrip
 pytest --cov-report=html
 # Open htmlcov/index.html in browser
 
-# Using Makefile
-make test
+# With Hatch
+hatch run test
 ```
+
+#### Test Coverage Snapshot (pytest 8.4.2, Python 3.13)
+
+- 141 total tests across three modules (`tests/test_tui_common.py`, `tests/test_task_app.py`, `tests/test_budget_app.py`)
+- Critical paths (authentication, encryption, file I/O helpers) maintain 95–100% coverage
+- Interactive Textual screens intentionally remain partially untested due to UI event loop constraints
 
 ### Project Structure
 
 ```text
-src/
-├── tui_common/          # Shared library (no duplication in git)
-│   ├── __init__.py      # Public API exports
-│   ├── auth.py          # User authentication (bcrypt)
-│   ├── crypto.py        # Encryption utilities (Fernet)
-│   ├── data.py          # CSV/JSON file operations
-│   ├── paths.py         # OS-standard path management
-│   ├── screens.py       # Login/registration UI
-│   └── version.py       # Version reading
-├── task_app/
-│   ├── __init__.py
-│   └── main.py          # Task management app
-└── budget_app/
-    ├── __init__.py
-    └── main.py          # Budget tracking app
+packages/
+├── task-app/
+│   ├── pyproject.toml
+│   └── src/
+│       ├── task_app/
+│       │   ├── __init__.py
+│       │   └── main.py          # Task management app
+│       └── tui_common/          # Shared library (embedded per package)
+│           ├── __init__.py
+│           ├── auth.py
+│           ├── crypto.py
+│           ├── data.py
+│           ├── paths.py
+│           ├── screens.py
+│           └── version.py
+└── budget-app/
+  ├── pyproject.toml
+  └── src/
+    ├── budget_app/
+    │   ├── __init__.py
+    │   └── main.py          # Budget tracking app
+    └── tui_common/          # Shared library (embedded per package)
+      ├── __init__.py
+      ├── auth.py
+      ├── crypto.py
+      ├── data.py
+      ├── paths.py
+      ├── screens.py
+      └── version.py
 
 Root files:
-├── build_packages.py    # Build script for self-contained packages
-├── task_app.py          # Compatibility wrapper
-├── budget_app.py        # Compatibility wrapper
-├── tui_common.py        # Compatibility wrapper
-├── tui_screens.py       # Compatibility wrapper
 ├── VERSION              # Semantic version (packaged with apps)
 ├── requirements.txt     # Python dependencies
-├── pyproject.toml       # Project configuration
-├── Makefile            # Convenience commands
-└── tests/              # Comprehensive test suite
-    ├── conftest.py      # Test fixtures (isolated data dirs)
-    ├── test_tui_common.py
-    ├── test_task_app.py
-    └── test_budget_app.py
+├── pyproject.toml       # Project configuration (repo-wide tooling)
+├── (no Makefile)        # Use Hatch scripts instead
+└── tests/               # Comprehensive test suite
+  ├── conftest.py      # Test fixtures (isolated data dirs)
+  ├── test_tui_common.py
+  ├── test_task_app.py
+  └── test_budget_app.py
 ```
 
 **Packaging Architecture:**
 
-- Source code in `src/` has NO duplication
-- `build_packages.py` copies files at build time
-- Each package includes its own copy of `tui_common`
+- Two Hatch projects under `packages/` build separate distributions
+- Each package embeds `tui_common` and includes a copy of `VERSION` for runtime
 - Build artifacts (`build/`, `dist/`) are gitignored
 
 See [PACKAGING.md](PACKAGING.md) for detailed architecture documentation.
@@ -433,11 +520,10 @@ See [PACKAGING.md](PACKAGING.md) for detailed architecture documentation.
 
 - **pytest** - Testing framework
 - **pytest-cov** - Code coverage reporting
-- **ruff** - Fast Python linter
-- **black** - Code formatter
+- **ruff** - Linter and code formatter
 - **mypy** - Static type checker
 - **pyright** - Type checker
-- **build** - Package building tool
+- **hatch** - Build and environment runner
 
 ## License
 

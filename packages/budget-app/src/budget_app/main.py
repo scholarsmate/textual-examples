@@ -1,4 +1,3 @@
-# budget_app/main.py
 """Budget tracking TUI application using Textual."""
 
 from collections.abc import Callable
@@ -67,16 +66,13 @@ COMMON_CATEGORIES = [
 ]
 
 
-# ---------------------- Modal screens (callbacks) ----------------------
-
-
 class AddExpenseScreen(Screen[None]):
     def __init__(
         self,
         on_saved: Callable[[dict[str, str]], None],
         expense: dict[str, str] | None = None,
         categories: list[str] | None = None,
-    ):  # noqa: E501
+    ):
         super().__init__()
         self._on_saved = on_saved
         self._expense = expense  # If provided, we're in edit mode
@@ -132,7 +128,6 @@ class AddExpenseScreen(Screen[None]):
             return
         try:
             parsed_date = datetime.strptime(d, "%Y-%m-%d")
-            # Check if date is not in the future
             if parsed_date.date() > date.today():
                 self.app.notify("Date cannot be in the future", severity="warning")
                 return
@@ -162,7 +157,6 @@ class AddExpenseScreen(Screen[None]):
 
         expense = {"date": d, "category": c, "amount": f"{amt:.2f}", "description": desc}
 
-        # If editing, preserve the serial number
         if self._is_edit and self._expense is not None:
             expense["serial"] = self._expense.get("serial", "")
 
@@ -275,9 +269,6 @@ class ConfirmDeleteScreen(Screen[None]):
         self.app.pop_screen()
 
 
-# ------------------------------- Main ---------------------------------
-
-
 class MainScreen(Screen[None]):
     BINDINGS = [
         Binding("a", "add_expense", "Add"),
@@ -323,71 +314,52 @@ class MainScreen(Screen[None]):
         self.username = username
         self.password = password  # None = plaintext, value = encrypted
 
-        # Password itself indicates encryption: None = plaintext, value = encrypted
         encrypted = password is not None
 
-        # Use appropriate file extensions based on encryption
         self.csv_path: Path = user_data_path(APP_NAME, username, "expenses.csv", encrypted)
         self.cfg_path: Path = user_config_path(APP_NAME, username, encrypted)
 
-        # Load config and data (password already None for plaintext, value for encrypted)
         defaults = {"monthly_budget": 0.0, "next_serial": 1}
         self.config = load_config(self.cfg_path, defaults, password)
         self.monthly_budget: float = float(self.config.get("monthly_budget", 0.0))
         self.next_serial: int = int(self.config.get("next_serial", 1))
         self.expenses: list[dict[str, str]] = sort_data(load_csv_data(self.csv_path, password))
-        self.selected_row_index: int | None = None  # Track selected row
-        self.sort_order: bool = True  # True = descending (newest first), False = ascending
+        self.selected_row_index: int | None = None
+        self.sort_order: bool = True
 
     def _get_all_categories(self) -> list[str]:
-        """Get combined list of common categories and user's existing categories."""
-        # Get unique categories from existing expenses
         used_categories = {e.get("category", "") for e in self.expenses if e.get("category")}
-        # Combine with common categories, remove duplicates, and sort
         all_categories = sorted(set(COMMON_CATEGORIES) | used_categories)
         return all_categories
 
     def _get_monthly_summary(self) -> str:
-        """Generate a summary of current month's spending."""
         today = date.today()
         month_str = f"{today.year:04d}-{today.month:02d}"
-
-        # Calculate total spent this month
         month_expenses = [e for e in self.expenses if e["date"].startswith(month_str)]
         total_spent = sum(float(e["amount"]) for e in month_expenses)
-
-        # Calculate spending by category
         category_totals: dict[str, float] = {}
         for e in month_expenses:
             cat = e.get("category", "Other")
             category_totals[cat] = category_totals.get(cat, 0.0) + float(e["amount"])
-
-        # Build summary text
         if self.monthly_budget > 0:
             remaining = self.monthly_budget - total_spent
             percent = (total_spent / self.monthly_budget) * 100 if self.monthly_budget > 0 else 0
-
             if remaining < 0:
                 status = f"⚠ OVER BUDGET by ${-remaining:.2f}"
             elif percent >= 80:
                 status = f"⚠ {percent:.1f}% used (${remaining:.2f} left)"
             else:
                 status = f"✓ ${remaining:.2f} remaining ({100 - percent:.1f}% left)"
-
             summary = f"📅 {month_str}: ${total_spent:.2f} / ${self.monthly_budget:.2f} - {status}"
         else:
             summary = f"📅 {month_str}: ${total_spent:.2f} spent (No budget set)"
-
-        # Add top 3 categories
         if category_totals:
             top_cats = sorted(category_totals.items(), key=lambda x: x[1], reverse=True)[:3]
             cat_summary = ", ".join([f"{cat}: ${amt:.2f}" for cat, amt in top_cats])
             summary += f" | Top: {cat_summary}"
-
         return summary
 
     def _update_summary(self) -> None:
-        """Update the summary label."""
         summary_label = self.query_one("#summary", Label)
         summary_label.update(self._get_monthly_summary())
 
@@ -395,9 +367,7 @@ class MainScreen(Screen[None]):
         yield Header()
         with Vertical(id="panel"):
             yield Label(f"Logged in as: {self.username}")
-            yield Label("", id="summary")  # Monthly summary
-
-            # --- Buttons pinned at the top (single row) ---
+            yield Label("", id="summary")
             with Horizontal(id="toolbar"):
                 yield Button("Add", id="btn-add")
                 yield Button("Edit", id="btn-edit")
@@ -406,8 +376,6 @@ class MainScreen(Screen[None]):
                 yield Button("Set Budget", id="btn-set")
                 yield Button("Sort", id="btn-sort")
                 yield Button("Logout", id="btn-logout")
-
-            # --- Table fills remaining space below ---
             dt: DataTable[object] = DataTable(id="table", cursor_type="row")
             dt.add_columns("Serial", "Date", "Category", "Amount", "Description")
             for e in self.expenses:
@@ -418,7 +386,6 @@ class MainScreen(Screen[None]):
         yield Footer()
 
     def on_mount(self) -> None:
-        """Called when screen is mounted."""
         self._update_summary()
 
     def _refresh_table(self) -> None:
@@ -426,44 +393,30 @@ class MainScreen(Screen[None]):
         dt.clear()
         for e in self.expenses:
             dt.add_row(e.get("serial", ""), e["date"], e["category"], e["amount"], e["description"])
-        # No cursor/scroll API (keeps cross-version + Pylance happy)
 
-    # ----- callbacks used by child screens
     def _on_expense_saved(self, expense: dict[str, str]) -> None:
-        # Check if this is an edit (has serial) or new expense (no serial)
         if "serial" in expense and expense["serial"]:
-            # Edit mode: update existing expense
             serial = expense["serial"]
             for i, e in enumerate(self.expenses):
                 if e.get("serial") == serial:
                     self.expenses[i] = expense
                     break
         else:
-            # Add mode: assign serial number and increment
             expense["serial"] = str(self.next_serial)
             self.next_serial += 1
-            # Update config with new next_serial
             self.config["next_serial"] = self.next_serial
             save_config(self.cfg_path, self.config)
-            # Insert newest at the top
             self.expenses.insert(0, expense)
-
-        # Re-sort by serial number descending
         self.expenses = sort_data(self.expenses, reverse=self.sort_order)
         self._refresh_table()
         self._update_summary()
         save_csv_data(self.csv_path, self.expenses, FIELDS, self.password)
-
-        # Check if monthly budget is exceeded for the expense's month
         if self.monthly_budget > 0:
             expense_date = expense["date"]
-            # Extract year-month (YYYY-MM) from the expense date
-            month_str = expense_date[:7]  # "YYYY-MM-DD"[:7] -> "YYYY-MM"
-            # Calculate total spent in that month
+            month_str = expense_date[:7]
             spent = sum(
                 float(e["amount"]) for e in self.expenses if e["date"].startswith(month_str)
             )
-            # Check if budget is exceeded
             if spent > self.monthly_budget:
                 excess = spent - self.monthly_budget
                 self.app.notify(
@@ -471,7 +424,7 @@ class MainScreen(Screen[None]):
                 )
             else:
                 remaining = self.monthly_budget - spent
-                self.app.notify(f"✅ Budget for {month_str}: ${remaining:.2f} remaining")
+                self.app.notify(f"✓ Budget for {month_str}: ${remaining:.2f} remaining")
 
     def _on_budget_set(self, value: float) -> None:
         self.monthly_budget = value
@@ -490,7 +443,7 @@ class MainScreen(Screen[None]):
             if delta < 0:
                 self.app.notify(f"⚠ Over budget in {month_str} by ${-delta:.2f}", severity="error")
             else:
-                self.app.notify(f"✅ Under budget in {month_str}: ${delta:.2f} remaining")
+                self.app.notify(f"✓ Under budget in {month_str}: ${delta:.2f} remaining")
 
     def _on_expense_deleted(self, row_index: int) -> None:
         if row_index < len(self.expenses):
@@ -500,12 +453,10 @@ class MainScreen(Screen[None]):
             save_csv_data(self.csv_path, self.expenses, FIELDS, self.password)
             self.app.notify(f"Deleted expense #{deleted_expense.get('serial', '')}")
 
-    # ----- row selection handler
     @on(DataTable.RowSelected)
     def _row_selected(self, event: DataTable.RowSelected) -> None:
         self.selected_row_index = event.cursor_row
 
-    # ----- buttons -> actions
     @on(Button.Pressed, "#btn-add")
     def _btn_add(self) -> None:
         self.action_add_expense()
@@ -534,45 +485,31 @@ class MainScreen(Screen[None]):
     def _btn_logout(self) -> None:
         self.action_logout()
 
-    # ----- key bindings (footer)
     def action_add_expense(self) -> None:
         categories = self._get_all_categories()
         self.app.push_screen(AddExpenseScreen(self._on_expense_saved, categories=categories))
 
     def action_edit_expense(self) -> None:
-        # Try to get the cursor position from the DataTable
         dt: DataTable[object] = self.query_one("#table", DataTable)
         cursor_row = dt.cursor_row
-
-        # Use cursor position if available, otherwise use selected row
         row_index = cursor_row if cursor_row >= 0 else self.selected_row_index
-
         if row_index is None or row_index >= len(self.expenses):
             self.app.notify("Please navigate to a row to edit (use arrow keys)", severity="warning")
             return
-
-        # Get the expense at the row
         expense_to_edit = self.expenses[row_index].copy()
         categories = self._get_all_categories()
         self.app.push_screen(AddExpenseScreen(self._on_expense_saved, expense_to_edit, categories))
 
     def action_delete_expense(self) -> None:
-        # Try to get the cursor position from the DataTable
         dt: DataTable[object] = self.query_one("#table", DataTable)
         cursor_row = dt.cursor_row
-
-        # Use cursor position if available, otherwise use selected row
         row_index = cursor_row if cursor_row >= 0 else self.selected_row_index
-
         if row_index is None or row_index >= len(self.expenses):
             self.app.notify(
                 "Please navigate to a row to delete (use arrow keys)", severity="warning"
             )
             return
-
-        # Get the expense at the row
         expense_to_delete = self.expenses[row_index].copy()
-        # Show confirmation dialog
         self.app.push_screen(
             ConfirmDeleteScreen(expense_to_delete, lambda: self._on_expense_deleted(row_index))
         )
@@ -585,10 +522,7 @@ class MainScreen(Screen[None]):
         self.app.push_screen(BudgetPrompt(self.monthly_budget, self._on_budget_set))
 
     def action_toggle_sort(self) -> None:
-        """Toggle sort order of expenses. Bound to 's' key."""
-        # Toggle the sort order
         self.sort_order = not self.sort_order
-        # Sort expenses using the shared sort_data function
         self.expenses = sort_data(self.expenses, reverse=self.sort_order)
         self._refresh_table()
         order = "descending" if self.sort_order else "ascending"
@@ -608,12 +542,9 @@ class BudgetApp(App[None]):
 
     def on_mount(self) -> None:
         auth = BcryptAuth(APP_NAME)
-        # LoginScreen provides both username and password to callback
-        # Check encryption status and pass password only if encryption is enabled
 
         def create_main_screen(user: str, pwd: str) -> MainScreen:
             encrypted = user_wants_encryption(APP_NAME, user)
-            # Only pass password if user has encryption enabled
             password = pwd if encrypted else None
             return MainScreen(user, password)
 

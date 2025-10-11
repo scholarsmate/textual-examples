@@ -1,4 +1,3 @@
-# task_app/main.py
 """Task management TUI application using Textual."""
 
 from collections.abc import Callable

@@ -12,8 +12,6 @@ from textual.widgets import Button, Footer, Header, Input, Label, Static
 
 
 class AuthProvider(Protocol):
-    """Protocol for authentication providers."""
-
     app_name: str
 
     def create_user(self, username: str, password: str, encrypt_data: bool = False) -> None: ...
@@ -22,15 +20,8 @@ class AuthProvider(Protocol):
 
 
 class EncryptionPromptScreen(ModalScreen[bool]):
-    """Ask user if they want to encrypt their data during registration.
-
-    Supports optional custom help text for different apps.
-    """
-
     CSS = """
-    EncryptionPromptScreen {
-        align: center middle;
-    }
+    EncryptionPromptScreen { align: center middle; }
     #encrypt-dialog {
         width: 70;
         height: auto;
@@ -38,39 +29,22 @@ class EncryptionPromptScreen(ModalScreen[bool]):
         border: thick $accent;
         background: $panel;
     }
-    #encrypt-title {
-        content-align: center middle;
-        text-style: bold;
-        margin-bottom: 1;
-    }
-    #encrypt-message {
-        margin-bottom: 2;
-    }
-    #encrypt-btns {
-        width: 100%;
-        grid-size: 2 1;
-        grid-gutter: 1 2;
-        grid-columns: 1fr 1fr;
-    }
+    #encrypt-title { content-align: center middle; text-style: bold; margin-bottom: 1; }
+    #encrypt-message { margin-bottom: 2; }
+    #encrypt-btns { width: 100%; grid-size: 2 1; grid-gutter: 1 2; grid-columns: 1fr 1fr; }
     #encrypt-btns Button { width: 100%; }
     Button.-primary { background: $accent; color: $text; }
     """
 
-    # Default generic help text
     DEFAULT_HELP_TEXT = (
         "Would you like to encrypt your data?\n\n"
-        "• YES: Your data will be encrypted with your password.\n"
+        "\u2022 YES: Your data will be encrypted with your password.\n"
         "         More secure, but you cannot recover data if you forget your password.\n\n"
-        "• NO: Your data will be stored in plain text.\n"
+        "\u2022 NO: Your data will be stored in plain text.\n"
         "        Less secure, but easier to access."
     )
 
     def __init__(self, help_text: str | None = None):
-        """Initialize encryption prompt.
-
-        Args:
-            help_text: Custom help text for specific apps. If None, uses generic default.
-        """
         super().__init__()
         self.help_text = help_text or self.DEFAULT_HELP_TEXT
 
@@ -92,8 +66,6 @@ class EncryptionPromptScreen(ModalScreen[bool]):
 
 
 class LoginScreen(Screen[None]):
-    """Login and registration screen for TUI apps."""
-
     BINDINGS = [
         Binding("enter", "login", "Login", show=True),
         Binding("ctrl+l", "login", "Login", show=True),
@@ -106,26 +78,14 @@ class LoginScreen(Screen[None]):
     #login-card {
         width: 70;
         max-width: 90%;
-        margin: 2 0;          /* Center() handles horizontal centering */
+        margin: 2 0;
         padding: 2 3;
         border: round $accent;
         background: $panel;
     }
-    #title {
-        content-align: center middle;
-        margin-bottom: 1;
-    }
-    Input {
-        width: 100%;
-        margin: 1 0;
-    }
-    /* Three equal columns, single row, with nice gaps */
-    #btns {
-        width: 100%;
-        grid-size: 3 1;             /* 3 columns, 1 row */
-        grid-gutter: 1 2;            /* row gap, col gap */
-        grid-columns: 1fr 1fr 1fr;   /* equal widths */
-    }
+    #title { content-align: center middle; margin-bottom: 1; }
+    Input { width: 100%; margin: 1 0; }
+    #btns { width: 100%; grid-size: 3 1; grid-gutter: 1 2; grid-columns: 1fr 1fr 1fr; }
     #btns Button { width: 100%; }
     Button.-primary { background: $accent; color: $text; }
     """
@@ -137,14 +97,6 @@ class LoginScreen(Screen[None]):
         next_screen: Callable[[str, str], Screen[None]],
         encryption_help: str | None = None,
     ):
-        """Initialize login screen.
-
-        Args:
-            title: Title to display on login screen
-            auth: Authentication provider
-            next_screen: Callable that creates the next screen after login
-            encryption_help: Optional custom help text for encryption prompt
-        """
         super().__init__()
         self._title = title
         self._auth = auth
@@ -166,7 +118,6 @@ class LoginScreen(Screen[None]):
     def on_mount(self) -> None:
         self.query_one("#username", Input).focus()
 
-    # Buttons
     @on(Button.Pressed, "#btn-quit")
     def _btn_quit(self) -> None:
         self.action_quit()
@@ -179,31 +130,26 @@ class LoginScreen(Screen[None]):
     def _btn_login(self) -> None:
         self.action_login()
 
-    # Key actions
     def action_quit(self) -> None:
         self.app.exit()
 
     def action_register(self) -> None:
-        """Handle registration action - prompts for encryption preference."""
         user = self.query_one("#username", Input).value.strip()
         pwd = self.query_one("#password", Input).value
         if not user or not pwd:
             self.app.notify("Enter a username & password to register.", severity="warning")
             return
-        # Check if user already exists
         if self._auth.user_exists(user):
             self.app.notify(
                 f"Username '{user}' is already taken. Please choose a different username.",
                 severity="error",
             )
             return
-        # Ask if user wants encryption
         self.app.push_screen(
             EncryptionPromptScreen(self._encryption_help), self._on_encryption_choice
         )
 
     def _on_encryption_choice(self, encrypt_data: bool | None) -> None:
-        """Called after user chooses encryption preference."""
         if encrypt_data is None:
             return
         user = self.query_one("#username", Input).value.strip()
@@ -212,7 +158,6 @@ class LoginScreen(Screen[None]):
             self._auth.create_user(user, pwd, encrypt_data)
             encryption_msg = " with encryption" if encrypt_data else ""
             self.app.notify(f"User '{user}' created{encryption_msg}. You can log in now.")
-            # Clear password field for security after registration
             self.query_one("#password", Input).value = ""
         except Exception as e:
             error_msg = str(e)
@@ -231,7 +176,6 @@ class LoginScreen(Screen[None]):
             self.app.notify("Username and password required.", severity="warning")
             return
         if self._auth.verify_user(user, pwd):
-            # Clear password field for security before transitioning
             self.query_one("#password", Input).value = ""
             self.query_one("#username", Input).value = ""
             self.app.push_screen(self._next(user, pwd))
