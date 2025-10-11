@@ -74,13 +74,15 @@ python_functions = ["test_*"]
 addopts = [
     "-v",
     "--strict-markers",
-    "--cov=src",
+    "--cov=task_app",
+    "--cov=budget_app",
+    "--cov=tui_common",
     "--cov-report=term-missing",
     "--cov-report=html",
 ]
 
 [tool.coverage.run]
-source = ["src"]
+source = ["task_app", "budget_app", "tui_common"]
 omit = [
     "tests/*",
     ".venv/*",
@@ -111,10 +113,10 @@ dependencies = [
 
 [tool.hatch.envs.default.scripts]
 # App launchers
-task = "python ./src/task_app/main.py"
-budget = "python ./src/budget_app/main.py"
-task-web = "python -m textual run --web --port 8000 ./src/task_app/main.py"
-budget-web = "python -m textual run --web --port 8000 ./src/budget_app/main.py"
+task = "python ./packages/task-app/src/task_app/main.py"
+budget = "python ./packages/budget-app/src/budget_app/main.py"
+task-web = "python -m textual run --web --port 8000 ./packages/task-app/src/task_app/main.py"
+budget-web = "python -m textual run --web --port 8000 ./packages/budget-app/src/budget_app/main.py"
 
 # QA utilities
 test = "pytest"

@@ -1,6 +1,6 @@
 # textual-tui-starter
 
-Two professional Textual (Textualize) TUI apps demonstrating shared authentication and data management:
+Two Textual (Textualize) TUI apps demonstrating shared authentication and data management:
 
 - **`task_app.py`** — Simple task manager with CRUD operations
 - **`budget_app.py`** — Full-featured expense tracker with budget monitoring
@@ -19,17 +19,17 @@ python -m venv .venv
 # Linux/macOS:
 source .venv/bin/activate
 
-# (Optional) keep packaging tools current
+# Install dependencies
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 
-# Launch in the terminal
-python ./src/task_app/main.py
-python ./src/budget_app/main.py
+# Launch in the terminal (from repo root)
+python ./packages/task-app/src/task_app/main.py
+python ./packages/budget-app/src/budget_app/main.py
 
 # Optional: run either app in the browser (Textual web mode)
-python -m textual run --web --port 8000 ./src/task_app/main.py
-python -m textual run --web --port 8000 ./src/budget_app/main.py
+python -m textual run --web --port 8000 ./packages/task-app/src/task_app/main.py
+python -m textual run --web --port 8000 ./packages/budget-app/src/budget_app/main.py
 ```
 
 ### Hatch one-liners
@@ -199,16 +199,16 @@ source .venv/bin/activate
 
 pip install -r requirements.txt
 
-# Run in the terminal
-python ./src/task_app/main.py
-python ./src/budget_app/main.py
+# Run in the terminal (from repo root)
+python ./packages/task-app/src/task_app/main.py
+python ./packages/budget-app/src/budget_app/main.py
 
 # Textual web mode (in-browser)
 # Launch Task app in browser
-python -m textual run --web --port 8000 ./src/task_app/main.py
+python -m textual run --web --port 8000 ./packages/task-app/src/task_app/main.py
 
 # Launch Budget app in browser
-python -m textual run --web --port 8000 ./src/budget_app/main.py
+python -m textual run --web --port 8000 ./packages/budget-app/src/budget_app/main.py
 ```
 
 ## Building Distribution Packages
@@ -456,42 +456,52 @@ hatch run test
 ### Project Structure
 
 ```text
-src/
-├── tui_common/          # Shared library (no duplication in git)
-│   ├── __init__.py      # Public API exports
-│   ├── auth.py          # User authentication (bcrypt)
-│   ├── crypto.py        # Encryption utilities (Fernet)
-│   ├── data.py          # CSV/JSON file operations
-│   ├── paths.py         # OS-standard path management
-│   ├── screens.py       # Login/registration UI
-│   └── version.py       # Version reading
-├── task_app/
-│   ├── __init__.py
-│   └── main.py          # Task management app
-└── budget_app/
-    ├── __init__.py
-    └── main.py          # Budget tracking app
+packages/
+├── task-app/
+│   ├── pyproject.toml
+│   └── src/
+│       ├── task_app/
+│       │   ├── __init__.py
+│       │   └── main.py          # Task management app
+│       └── tui_common/          # Shared library (embedded per package)
+│           ├── __init__.py
+│           ├── auth.py
+│           ├── crypto.py
+│           ├── data.py
+│           ├── paths.py
+│           ├── screens.py
+│           └── version.py
+└── budget-app/
+  ├── pyproject.toml
+  └── src/
+    ├── budget_app/
+    │   ├── __init__.py
+    │   └── main.py          # Budget tracking app
+    └── tui_common/          # Shared library (embedded per package)
+      ├── __init__.py
+      ├── auth.py
+      ├── crypto.py
+      ├── data.py
+      ├── paths.py
+      ├── screens.py
+      └── version.py
 
 Root files:
 ├── VERSION              # Semantic version (packaged with apps)
 ├── requirements.txt     # Python dependencies
-├── pyproject.toml       # Project configuration
-├── packages/            # Per-app Hatch projects
-│   ├── task-app/        # textual-task-app build config
-│   └── budget-app/      # textual-budget-app build config
-├── (no Makefile)       # Use Hatch scripts instead
-└── tests/              # Comprehensive test suite
-    ├── conftest.py      # Test fixtures (isolated data dirs)
-    ├── test_tui_common.py
-    ├── test_task_app.py
-    └── test_budget_app.py
+├── pyproject.toml       # Project configuration (repo-wide tooling)
+├── (no Makefile)        # Use Hatch scripts instead
+└── tests/               # Comprehensive test suite
+  ├── conftest.py      # Test fixtures (isolated data dirs)
+  ├── test_tui_common.py
+  ├── test_task_app.py
+  └── test_budget_app.py
 ```
 
 **Packaging Architecture:**
 
-- Source code in `src/` has NO duplication
 - Two Hatch projects under `packages/` build separate distributions
-- Each package includes `tui_common` and a copy of `VERSION` for runtime
+- Each package embeds `tui_common` and includes a copy of `VERSION` for runtime
 - Build artifacts (`build/`, `dist/`) are gitignored
 
 See [PACKAGING.md](PACKAGING.md) for detailed architecture documentation.

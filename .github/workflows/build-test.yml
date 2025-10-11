@@ -105,9 +105,9 @@ jobs:
       
       - name: Run tests with pytest
         run: |
-          pytest tests/ -v --cov=src --cov-report=xml --cov-report=term-missing || true
+          pytest tests/ -v --cov=task_app --cov=budget_app --cov=tui_common --cov-report=xml --cov-report=term-missing || true
       
       - name: Run linters
         run: |
           ruff check . || true
-          mypy src/ || true
+          mypy . || true

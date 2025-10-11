@@ -4,13 +4,13 @@ This directory contains the test suite for the textual-examples project.
 
 ## Structure
 
-```
+```text
 tests/
 ├── __init__.py           # Makes tests a package
 ├── conftest.py           # Shared pytest configuration and fixtures
-├── test_tui_common.py    # Tests for tui_common.py module (66 tests)
-├── test_task_app.py      # Tests for task_app.py module (26 tests)
-└── test_budget_app.py    # Tests for budget_app.py module (45 tests)
+├── test_tui_common.py    # Tests for tui_common module
+├── test_task_app.py      # Tests for task_app module
+└── test_budget_app.py    # Tests for budget_app module
 ```
 
 ## Running Tests
@@ -44,7 +44,7 @@ pytest tests/test_tui_common.py::TestEncryption::test_encrypt_decrypt_roundtrip 
 ### With Coverage
 
 ```bash
-pytest --cov=tui_common --cov-report=html
+pytest --cov=task_app --cov=budget_app --cov=tui_common --cov-report=html
 ```
 
 ### Using Hatch
@@ -55,10 +55,10 @@ hatch run test
 
 ## Test Coverage
 
-- **137 total tests** across 3 test files
-- **tui_common.py**: 100% coverage (177/177 lines)
-- **task_app.py**: Data models and business logic tested
-- **budget_app.py**: Data models and calculations tested
+- Current suite: 141 tests across 3 files
+- tui_common: Core helpers and crypto fully tested
+- task_app: Data models and business logic covered
+- budget_app: Data models and calculations covered
 
 ## Test Organization
 
@@ -113,9 +113,9 @@ Test-specific fixtures in `test_tui_common.py`:
 
 ## Continuous Integration
 
-All tests must pass before code is merged:
+All checks must pass before code is merged:
 
 - ✅ pytest (all tests passing)
 - ✅ mypy (no type errors)
 - ✅ ruff (no linting errors)
-- ✅ 100% code coverage maintained
+- ✅ coverage thresholds enforced in CI
