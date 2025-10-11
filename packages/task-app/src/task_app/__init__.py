@@ -1,8 +1,5 @@
-from importlib import import_module as _im
+"""Task management TUI application package."""
 
-# Re-export from monorepo src at build time if available
-try:
-    from src.task_app import *  # type: ignore
-except Exception:
-    # When installed, the package will contain the actual module files via force-include
-    pass
+from .main import TaskApp, main
+
+__all__ = ["TaskApp", "main"]
