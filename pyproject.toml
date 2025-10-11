@@ -109,6 +109,11 @@ features = ["dev"]
 skip-install = true
 dependencies = [
     "build>=1.2.2",
+    "pytest>=8.4.2",
+    "pytest-cov>=7.0.0",
+    "ruff>=0.13.3",
+    "mypy>=1.18.2",
+    "pyright>=1.1.389",
 ]
 
 [tool.hatch.envs.default.scripts]

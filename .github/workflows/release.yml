@@ -36,6 +36,7 @@ jobs:
           python -m build -w -s packages/budget-app
 
       - name: Move artifacts to top-level dist
+        shell: bash
         run: |
           mkdir -p dist
           cp packages/task-app/dist/* dist/
