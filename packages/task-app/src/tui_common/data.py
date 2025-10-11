@@ -97,6 +97,7 @@ def sort_data(
             return int(item.get(serial_field, 0))
         except Exception:
             return 0
+
     return sorted(data, key=key, reverse=reverse)
 
 

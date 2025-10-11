@@ -1,7 +1,6 @@
 # test_task_app.py
 """Tests for task_app module."""
 
-
 from task_app.main import APP_NAME, FIELDS, Task
 
 
