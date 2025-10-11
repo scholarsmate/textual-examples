@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "textual-tui-apps"
-version = { file = "VERSION" }
+dynamic = ["version"]
 description = "Professional Textual TUI applications: Task Manager and Budget Tracker"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -102,3 +102,40 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "if TYPE_CHECKING:",
 ]
+
+# Hatch configuration (optional but recommended for dev convenience)
+[tool.hatch.envs.default]
+# Install project in editable mode with dev extras
+features = ["dev"]
+skip-install = true
+dependencies = [
+    "build>=1.2.2",
+]
+
+[tool.hatch.envs.default.scripts]
+# App launchers
+task = "task-app"
+budget = "budget-app"
+task-web = "python -m textual run --web --port 8000 ./src/task_app/main.py"
+budget-web = "python -m textual run --web --port 8000 ./src/budget_app/main.py"
+
+# QA utilities
+test = "pytest"
+cov = "pytest --cov"
+lint = "ruff check ."
+format = "black ."
+# Avoid circular expansion by not naming scripts after the tool binaries
+typecheck = "python -m mypy ."
+typecheck-pyright = "pyright"
+
+# Build shortcuts using PEP 517 builder
+build-task = "python -m build -w -s packages/task-app"
+build-budget = "python -m build -w -s packages/budget-app"
+build-all = [
+    "python -m build -w -s packages/task-app",
+    "python -m build -w -s packages/budget-app",
+]
+
+# Manage project version via VERSION file
+[tool.hatch.version]
+path = "VERSION"

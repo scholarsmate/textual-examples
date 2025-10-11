@@ -47,10 +47,10 @@ pytest tests/test_tui_common.py::TestEncryption::test_encrypt_decrypt_roundtrip 
 pytest --cov=tui_common --cov-report=html
 ```
 
-### Using Makefile
+### Using Hatch
 
 ```bash
-make test
+hatch run test
 ```
 
 ## Test Coverage
