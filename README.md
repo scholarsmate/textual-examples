@@ -178,7 +178,9 @@ budget-app
 ### Option 2b: Editable install for development (easiest CLI)
 
 ```powershell
-pip install -e .
+# Install each app in editable mode
+pip install -e packages/task-app
+pip install -e packages/budget-app
 
 # Then use the console scripts (works from anywhere)
 task-app
