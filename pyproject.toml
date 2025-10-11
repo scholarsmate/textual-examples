@@ -111,8 +111,8 @@ dependencies = [
 
 [tool.hatch.envs.default.scripts]
 # App launchers
-task = "task-app"
-budget = "budget-app"
+task = "python ./src/task_app/main.py"
+budget = "python ./src/budget_app/main.py"
 task-web = "python -m textual run --web --port 8000 ./src/task_app/main.py"
 budget-web = "python -m textual run --web --port 8000 ./src/budget_app/main.py"
 
@@ -136,3 +136,7 @@ build-all = [
 # Manage project version via VERSION file
 [tool.hatch.version]
 path = "VERSION"
+
+# Ensure setuptools-based tools can also read dynamic version
+[tool.setuptools.dynamic]
+version = { file = "VERSION" }

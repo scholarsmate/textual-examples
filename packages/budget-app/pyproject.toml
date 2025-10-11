@@ -6,9 +6,9 @@ build-backend = "hatchling.build"
 name = "textual-budget-app"
 dynamic = ["version"]
 description = "Budget Tracking TUI Application"
-readme = "../../README.md"
+readme = "README.md"
 requires-python = ">=3.10"
-license = { file = "../../LICENSE" }
+license = { file = "LICENSE" }
 authors = [
   { name = "Davin Shearer", email = "scholarsmate@users.noreply.github.com" }
 ]
