@@ -42,13 +42,28 @@ jobs:
             echo ""
           done
       
-      - name: Install and test packages
+      - name: Install and verify packages
         shell: bash
         run: |
           pip install dist/*.whl
-          python -c "import task_app; import budget_app; import tui_common; print('All packages imported successfully')"
-          task-app --help || echo "Task app CLI installed"
-          budget-app --help || echo "Budget app CLI installed"
+          python - <<'__PY__'
+          """Verify packages import cleanly and console scripts are installed."""
+          import importlib
+          import shutil
+          import sys
+
+          modules = ("task_app", "budget_app", "tui_common")
+          for module in modules:
+              importlib.import_module(module)
+              print(f"Imported {module} successfully")
+
+          missing = [cmd for cmd in ("task-app", "budget-app") if not shutil.which(cmd)]
+          if missing:
+              print(f"Missing CLI entry points: {', '.join(missing)}", file=sys.stderr)
+              sys.exit(1)
+
+          print("Console scripts detected: task-app, budget-app")
+          __PY__
       
       - name: Upload build artifacts (Ubuntu Python 3.10 only)
         if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.10'

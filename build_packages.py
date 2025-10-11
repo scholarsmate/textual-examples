@@ -41,11 +41,22 @@ if sys.platform == "win32":
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8")
 
 
+ROOT_DIR = Path(__file__).resolve().parent
+VERSION_FILE = ROOT_DIR / "VERSION"
+
+
+def read_project_version() -> str:
+    """Read the project version from the VERSION file."""
+    if not VERSION_FILE.exists():
+        raise FileNotFoundError(f"VERSION file not found at {VERSION_FILE}")
+    return VERSION_FILE.read_text(encoding="utf-8").strip()
+
+
 def clean_build_dirs() -> None:
     """Remove existing build and dist directories."""
     print("🧹 Cleaning build and dist directories...")
     for dir_name in ["build", "dist"]:
-        dir_path = Path(dir_name)
+        dir_path = ROOT_DIR / dir_name
         if dir_path.exists():
             shutil.rmtree(dir_path)
             print(f"   Removed {dir_name}/")
@@ -57,41 +68,42 @@ def copy_tree(src: Path, dst: Path, description: str) -> None:
     shutil.copytree(src, dst, dirs_exist_ok=True)
 
 
-def create_task_app_package() -> Path:
+def create_task_app_package(version: str) -> Path:
     """Create task-app package in build directory."""
     print("\n📦 Building task-app package...")
 
-    build_dir = Path("build/task-app")
+    build_dir = ROOT_DIR / "build/task-app"
     build_dir.mkdir(parents=True, exist_ok=True)
 
     # Copy source files
-    copy_tree(Path("src/task_app"), build_dir / "task_app", "task_app module")
-    copy_tree(Path("src/tui_common"), build_dir / "tui_common", "tui_common library")
+    copy_tree(ROOT_DIR / "src/task_app", build_dir / "task_app", "task_app module")
+    copy_tree(ROOT_DIR / "src/tui_common", build_dir / "tui_common", "tui_common library")
 
     # Copy VERSION file into tui_common so it gets packaged
-    shutil.copy("VERSION", build_dir / "tui_common" / "VERSION")
+    shutil.copy(VERSION_FILE, build_dir / "tui_common" / "VERSION")
     print("   Copying VERSION to tui_common/")
 
     # Copy supporting files to build root
     for file in ["README.md", "LICENSE"]:
-        if Path(file).exists():
-            shutil.copy(file, build_dir)
+        file_path = ROOT_DIR / file
+        if file_path.exists():
+            shutil.copy(file_path, build_dir)
             print(f"   Copying {file}")
 
     # Create pyproject.toml for task-app
-    pyproject_content = """[build-system]
+    pyproject_content = f"""[build-system]
 requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "textual-task-app"
-version = "1.0.0"
+version = "{version}"
 description = "Task Management TUI Application"
 readme = "README.md"
 requires-python = ">=3.10"
-license = {text = "MIT"}
+license = {{text = "Apache-2.0"}}
 authors = [
-    {name = "Scholar's Mate", email = "scholarsmate@users.noreply.github.com"}
+    {{name = "Scholar's Mate", email = "scholarsmate@users.noreply.github.com"}}
 ]
 keywords = ["tui", "textual", "terminal", "task-manager", "todo", "cli"]
 classifiers = [
@@ -140,41 +152,42 @@ tui_common = ["VERSION"]
     return build_dir
 
 
-def create_budget_app_package() -> Path:
+def create_budget_app_package(version: str) -> Path:
     """Create budget-app package in build directory."""
     print("\n📦 Building budget-app package...")
 
-    build_dir = Path("build/budget-app")
+    build_dir = ROOT_DIR / "build/budget-app"
     build_dir.mkdir(parents=True, exist_ok=True)
 
     # Copy source files
-    copy_tree(Path("src/budget_app"), build_dir / "budget_app", "budget_app module")
-    copy_tree(Path("src/tui_common"), build_dir / "tui_common", "tui_common library")
+    copy_tree(ROOT_DIR / "src/budget_app", build_dir / "budget_app", "budget_app module")
+    copy_tree(ROOT_DIR / "src/tui_common", build_dir / "tui_common", "tui_common library")
 
     # Copy VERSION file into tui_common so it gets packaged
-    shutil.copy("VERSION", build_dir / "tui_common" / "VERSION")
+    shutil.copy(VERSION_FILE, build_dir / "tui_common" / "VERSION")
     print("   Copying VERSION to tui_common/")
 
     # Copy supporting files to build root
     for file in ["README.md", "LICENSE"]:
-        if Path(file).exists():
-            shutil.copy(file, build_dir)
+        file_path = ROOT_DIR / file
+        if file_path.exists():
+            shutil.copy(file_path, build_dir)
             print(f"   Copying {file}")
 
     # Create pyproject.toml for budget-app
-    pyproject_content = """[build-system]
+    pyproject_content = f"""[build-system]
 requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "textual-budget-app"
-version = "1.0.0"
+version = "{version}"
 description = "Budget Tracking TUI Application"
 readme = "README.md"
 requires-python = ">=3.10"
-license = {text = "MIT"}
+license = {{text = "Apache-2.0"}}
 authors = [
-    {name = "Scholar's Mate", email = "scholarsmate@users.noreply.github.com"}
+    {{name = "Scholar's Mate", email = "scholarsmate@users.noreply.github.com"}}
 ]
 keywords = ["tui", "textual", "terminal", "budget-tracker", "finance", "cli"]
 classifiers = [
@@ -227,8 +240,9 @@ def build_package(build_dir: Path, package_name: str) -> bool:
     """Build a package using python -m build."""
     print(f"\n🔨 Building {package_name} package...")
 
+    out_dir = (ROOT_DIR / "dist").resolve()
     result = subprocess.run(
-        [sys.executable, "-m", "build", "--outdir", "../../dist"],
+        [sys.executable, "-m", "build", "--outdir", str(out_dir)],
         cwd=build_dir,
         capture_output=True,
         text=True,
@@ -249,15 +263,18 @@ def main() -> int:
     print("Building Task and Budget App Packages")
     print("=" * 60)
 
+    version = read_project_version()
+    print(f"Detected project version: {version}")
+
     # Clean previous builds
     clean_build_dirs()
 
     # Create build directories with copied source
-    task_build_dir = create_task_app_package()
-    budget_build_dir = create_budget_app_package()
+    task_build_dir = create_task_app_package(version)
+    budget_build_dir = create_budget_app_package(version)
 
     # Create dist directory
-    Path("dist").mkdir(exist_ok=True)
+    (ROOT_DIR / "dist").mkdir(exist_ok=True)
 
     # Build packages
     success = True
