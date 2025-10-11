@@ -7,9 +7,12 @@ from pathlib import Path
 import pytest
 from _pytest.monkeypatch import MonkeyPatch
 
-# Add the src directory to the path so tests can import the modules
-src_path = Path(__file__).parent.parent / "src"
-sys.path.insert(0, str(src_path))
+# Add per-package source directories to the path so tests can import modules
+repo_root = Path(__file__).parent.parent
+task_src = repo_root / "packages" / "task-app" / "src"
+budget_src = repo_root / "packages" / "budget-app" / "src"
+sys.path.insert(0, str(task_src))
+sys.path.insert(0, str(budget_src))
 
 
 @pytest.fixture(autouse=True)
