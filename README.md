@@ -47,7 +47,7 @@ hatch run budget-web   # budget app in browser
 hatch run test         # pytest
 hatch run cov          # pytest with coverage
 hatch run lint         # ruff
-hatch run format       # black
+hatch run format       # ruff formatter
 ```
 
 ## Features
@@ -397,12 +397,12 @@ hatch run budget-web   # run budget app in browser (Textual web mode)
 hatch run test         # run pytest
 hatch run cov          # run pytest with coverage
 hatch run lint         # ruff
-hatch run format       # black
+hatch run format       # ruff formatter
 ```
 
 ## Development
 
-### Code Quality: Ruff + Black via pre-commit
+### Code Quality: Ruff (formatter + linter) via pre-commit
 
 ```bash
 pip install -r requirements.txt
@@ -508,8 +508,7 @@ See [PACKAGING.md](PACKAGING.md) for detailed architecture documentation.
 
 - **pytest** - Testing framework
 - **pytest-cov** - Code coverage reporting
-- **ruff** - Fast Python linter
-- **black** - Code formatter
+- **ruff** - Linter and code formatter
 - **mypy** - Static type checker
 - **pyright** - Type checker
 - **hatch** - Build and environment runner

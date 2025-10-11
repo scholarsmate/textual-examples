@@ -50,11 +50,10 @@ include = [
 ]
 
 [tool.hatch.build.targets.wheel.force-include]
-"../../src/task_app" = "task_app"
-"../../src/tui_common" = "tui_common"
-"../../VERSION" = "tui_common/VERSION"
+"src/task_app" = "task_app"
+"src/tui_common" = "tui_common"
 
 [tool.hatch.version]
 source = "regex"
-path = "../../VERSION"
+path = "src/VERSION"
 pattern = "^(?P<version>.+)$"
