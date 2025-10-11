@@ -6,7 +6,7 @@ This directory contains CI/CD workflows for the Textual TUI Apps project.
 
 ### 🚀 release.yml - Build and Release Packages
 
-**Triggers:** When a version tag is pushed (e.g., `v1.0.0`)
+**Triggers:** When a version tag is pushed (e.g., `v1.0.2`)
 
 **Purpose:** Automatically builds both packages and creates a GitHub Release with distribution files.
 
@@ -35,8 +35,8 @@ This directory contains CI/CD workflows for the Textual TUI Apps project.
 3. Create and push a version tag:
 
    ```bash
-   git tag v1.0.0
-   git push origin v1.0.0
+   git tag v1.0.2
+   git push origin v1.0.2
    ```
 
 4. GitHub Actions will automatically build and release

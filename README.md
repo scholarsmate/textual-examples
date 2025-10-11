@@ -46,9 +46,9 @@ Both apps share a common bcrypt-based authentication layer with support for opti
 This project follows [Semantic Versioning](https://semver.org/) (SemVer):
 
 - **Version Format:** MAJOR.MINOR.PATCH (e.g., 1.0.0)
-- **Current Version:** `1.0.0`
+- **Current Version:** `1.0.2`
 - **Version Location:** The `VERSION` file at the project root
-- **Display:** Version is shown in the window title bar and header (e.g., "Task App v1.0.0")
+- **Display:** Version is shown in the window title bar and header (e.g., "Task App v1.0.2")
 
 ### Version Components
 
@@ -65,7 +65,7 @@ To release a new version:
 3. Tag the release: `git tag vX.Y.Z`
 4. Push with tags: `git push origin main && git push origin vX.Y.Z`
 
-**CI/CD Integration**: When you push a version tag (e.g., `v1.0.0`), GitHub Actions automatically:
+**CI/CD Integration**: When you push a version tag (e.g., `v1.0.2`), GitHub Actions automatically:
 
 - Builds both packages using `build_packages.py`
 - Creates a GitHub Release with wheel and source distribution files
@@ -85,10 +85,10 @@ Download the latest wheel files from [GitHub Releases](https://github.com/schola
 
 ```bash
 # Task app
-pip install textual_task_app-1.0.0-py3-none-any.whl
+pip install textual_task_app-1.0.2-py3-none-any.whl
 
 # Budget app
-pip install textual_budget_app-1.0.0-py3-none-any.whl
+pip install textual_budget_app-1.0.2-py3-none-any.whl
 
 # Run the apps
 task-app
@@ -106,8 +106,8 @@ pip install build
 python build_packages.py
 
 # Install from built wheels
-pip install dist/textual_task_app-1.0.0-py3-none-any.whl
-pip install dist/textual_budget_app-1.0.0-py3-none-any.whl
+pip install dist/textual_task_app-1.0.2-py3-none-any.whl
+pip install dist/textual_budget_app-1.0.2-py3-none-any.whl
 
 # Run the apps
 task-app
@@ -141,12 +141,14 @@ python build_packages.py
 ```
 
 This creates in the `dist/` directory:
-- `textual_task_app-1.0.0-py3-none-any.whl`
-- `textual_task_app-1.0.0.tar.gz`
-- `textual_budget_app-1.0.0-py3-none-any.whl`
-- `textual_budget_app-1.0.0.tar.gz`
+
+- `textual_task_app-1.0.2-py3-none-any.whl`
+- `textual_task_app-1.0.2.tar.gz`
+- `textual_budget_app-1.0.2-py3-none-any.whl`
+- `textual_budget_app-1.0.2.tar.gz`
 
 The `build_packages.py` script:
+
 1. Copies source files from `src/` to package-specific build directories
 2. Includes the shared `tui_common` library with each app
 3. Generates appropriate `pyproject.toml` for each package
@@ -376,7 +378,7 @@ make test
 
 ### Project Structure
 
-```
+```text
 src/
 ├── tui_common/          # Shared library (no duplication in git)
 │   ├── __init__.py      # Public API exports
@@ -411,6 +413,7 @@ Root files:
 ```
 
 **Packaging Architecture:**
+
 - Source code in `src/` has NO duplication
 - `build_packages.py` copies files at build time
 - Each package includes its own copy of `tui_common`
@@ -438,4 +441,4 @@ See [PACKAGING.md](PACKAGING.md) for detailed architecture documentation.
 
 ## License
 
-See LICENSE file for details.
+Licensed under the [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0). See the `LICENSE` file for full terms and attribution guidelines.

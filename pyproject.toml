@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "textual-tui-apps"
-version = "1.0.0"
+version = { file = "VERSION" }
 description = "Professional Textual TUI applications: Task Manager and Budget Tracker"
 readme = "README.md"
 requires-python = ">=3.10"
-license = "MIT"
+license = { file = "LICENSE" }
 authors = [
     {name = "Scholar's Mate", email = "scholarsmate@users.noreply.github.com"}
 ]
