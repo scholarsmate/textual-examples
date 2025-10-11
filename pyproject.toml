@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = { file = "LICENSE" }
 authors = [
-    {name = "Scholar's Mate", email = "scholarsmate@users.noreply.github.com"}
+    {name = "Davin Shearer", email = "scholarsmate@users.noreply.github.com"}
 ]
 keywords = ["tui", "textual", "terminal", "task-manager", "budget-tracker", "cli"]
 classifiers = [
@@ -36,7 +36,6 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "black>=25.9.0",
     "ruff>=0.13.3",
     "mypy>=1.18.2",
     "pytest>=8.4.2",
@@ -55,9 +54,7 @@ Issues = "https://github.com/scholarsmate/textual-examples/issues"
 [tool.setuptools.packages.find]
 where = ["src"]
 
-[tool.black]
-line-length = 100
-target-version = ["py310"]
+## Black removed in favor of Ruff formatter
 
 [tool.ruff]
 line-length = 100
@@ -123,7 +120,7 @@ budget-web = "python -m textual run --web --port 8000 ./src/budget_app/main.py"
 test = "pytest"
 cov = "pytest --cov"
 lint = "ruff check ."
-format = "black ."
+format = "ruff format ."
 # Avoid circular expansion by not naming scripts after the tool binaries
 typecheck = "python -m mypy ."
 typecheck-pyright = "pyright"

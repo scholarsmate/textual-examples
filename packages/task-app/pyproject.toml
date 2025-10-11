@@ -10,7 +10,7 @@ readme = "../../README.md"
 requires-python = ">=3.10"
 license = { file = "../../LICENSE" }
 authors = [
-  { name = "Scholar's Mate", email = "scholarsmate@users.noreply.github.com" }
+  { name = "Davin Shearer", email = "scholarsmate@users.noreply.github.com" }
 ]
 keywords = ["tui", "textual", "terminal", "task-manager", "todo", "cli"]
 classifiers = [

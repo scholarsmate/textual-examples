@@ -72,9 +72,9 @@ jobs:
       run: |
         mypy .
 
-    - name: Check formatting with black
+    - name: Check formatting with Ruff formatter
       run: |
-        black --check .
+        ruff format --check .
 
   security:
     name: Security Scan
