@@ -21,7 +21,13 @@ class AuthProvider(Protocol):
 class EncryptionPromptScreen(ModalScreen[bool]):
     CSS = """
     EncryptionPromptScreen { align: center middle; }
-    #encrypt-dialog { width: 70; height: auto; padding: 2 3; border: thick $accent; background: $panel; }
+    #encrypt-dialog {
+        width: 70;
+        height: auto;
+        padding: 2 3;
+        border: thick $accent;
+        background: $panel;
+    }
     #encrypt-title { content-align: center middle; text-style: bold; margin-bottom: 1; }
     #encrypt-message { margin-bottom: 2; }
     #encrypt-btns { width: 100%; grid-size: 2 1; grid-gutter: 1 2; grid-columns: 1fr 1fr; }
@@ -68,7 +74,14 @@ class LoginScreen(Screen[None]):
     ]
 
     CSS = """
-    #login-card { width: 70; max-width: 90%; margin: 2 0; padding: 2 3; border: round $accent; background: $panel; }
+    #login-card {
+        width: 70;
+        max-width: 90%;
+        margin: 2 0;
+        padding: 2 3;
+        border: round $accent;
+        background: $panel;
+    }
     #title { content-align: center middle; margin-bottom: 1; }
     Input { width: 100%; margin: 1 0; }
     #btns { width: 100%; grid-size: 3 1; grid-gutter: 1 2; grid-columns: 1fr 1fr 1fr; }
